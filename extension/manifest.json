@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "Click-Wise - Legal Document Analyzer",
+  "version": "0.1.0",
+  "description": "AI-powered analysis of Terms, Privacy Policies, and other digital legal documents",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting",
+    "declarativeNetRequest"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Click-Wise"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "background": {
+    "service_worker": "background/index.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/index.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "icons": {
+    "16": "/icons/icon-16.png",
+    "48": "/icons/icon-48.png",
+    "128": "/icons/icon-128.png"
+  }
+}
