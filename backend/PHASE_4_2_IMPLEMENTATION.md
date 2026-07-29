@@ -84,7 +84,7 @@ class AnalysisResponse(BaseModel):
 **File:** `backend/services/claude_client.py`
 
 **Key Features:**
-- ✅ Uses Anthropic Claude API (claude-3-5-sonnet-20241022)
+- ✅ Uses Anthropic Claude API (claude-3-5-sonnet-latest)
 - ✅ Wraps document in `<user_document>` tags for security
 - ✅ Validates JSON response from Claude
 - ✅ Handles markdown code blocks in response

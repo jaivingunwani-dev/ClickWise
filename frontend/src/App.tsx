@@ -1,6 +1,8 @@
 import React from 'react';
-import { RiskScore } from './components/RiskScore';
+import { PrivacyScorecard } from './components/PrivacyScorecard';
 import { DocumentSummary } from './components/DocumentSummary';
+import { QuestionAnswerSection } from './components/QuestionAnswerSection';
+import { HighlightsPreview } from './components/HighlightsPreview';
 import { AlertCircle, Loader } from 'lucide-react';
 import { scanDocument, formatError } from './services/api';
 import './index.css';
@@ -19,6 +21,13 @@ interface AnalysisState {
     description: string;
   }>;
   cached: boolean;
+  contentHash: string;
+  documentContent: string;
+  highlightedExcerpts: Array<{
+    text: string;
+    severity: 'high_risk' | 'caution';
+    explanation: string;
+  }>;
 }
 
 interface ErrorState {
@@ -117,6 +126,9 @@ function App() {
         level: response.risk_score.level,
         flags: response.risk_score.flags,
         cached: response.cached,
+        contentHash: response.content_hash,
+        documentContent: pageData.text,
+        highlightedExcerpts: response.highlighted_excerpts || [],
       });
 
       setError(null);
@@ -179,7 +191,7 @@ function App() {
                 </div>
               )}
 
-              <RiskScore
+              <PrivacyScorecard
                 score={analysis.score}
                 level={analysis.level}
                 flags={analysis.flags}
@@ -193,6 +205,31 @@ function App() {
                   key_clauses: analysis.risks,
                 }}
                 loading={false}
+              />
+
+              <HighlightsPreview
+                excerpts={analysis.highlightedExcerpts}
+                onApplyHighlights={() => {
+                  // Send highlights to content script for page highlighting
+                  chrome.tabs?.query({ active: true, currentWindow: true }, (tabs) => {
+                    if (tabs[0]?.id) {
+                      chrome.tabs.sendMessage(tabs[0].id, {
+                        action: 'applyHighlights',
+                        excerpts: analysis.highlightedExcerpts,
+                      });
+                    }
+                  });
+                }}
+              />
+
+              <QuestionAnswerSection
+                contentHash={analysis.contentHash}
+                documentContent={analysis.documentContent}
+                docType={analysis.docType}
+                summary={{
+                  executive_summary: analysis.summary,
+                  key_risks: analysis.risks,
+                }}
               />
 
               <button

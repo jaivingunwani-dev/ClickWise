@@ -1,0 +1,224 @@
+================================================================================
+                   BACKEND 500 ERROR - FIXES APPLIED
+================================================================================
+
+ISSUE: Backend threw 500 Internal Server Error during document analysis
+CAUSE: Unhandled exceptions from missing API keys, mock credentials, etc.
+
+================================================================================
+                          3 FILES FIXED
+================================================================================
+
+1. backend/services/claude_client.py (NEW ERROR HANDLING)
+   - Checks for empty/missing API key before initializing client
+   - Returns RuntimeError instead of crashing
+   - Router catches RuntimeError and returns 503 Service Unavailable
+
+2. backend/services/caching/cache_service.py (GRACEFUL DEGRADATION)
+   - Checks if Supabase credentials are real before initializing
+   - Sets self.is_enabled = False for mock credentials
+   - Cache operations silently skip if not enabled
+   - Requests still succeed (cache is optional, not required)
+
+3. backend/api/routes/documents.py (ERROR CLASSIFICATION)
+   - Catches specific exception types with appropriate HTTP codes
+   - RuntimeError (API not configured) → 503 Service Unavailable
+   - ValueError (bad JSON response) → 400 Bad Request
+   - Other exceptions → 500 Internal Server Error (only truly unexpected)
+
+================================================================================
+                         ERROR RESPONSE EXAMPLES
+================================================================================
+
+BEFORE FIX:
+  curl http://localhost:8000/api/v1/scan ...
+  → 500 Internal Server Error
+  → {"detail": "Failed to scan document"}
+  Problem: No clear indication what's wrong
+
+AFTER FIX - Missing API Key:
+  → 503 Service Unavailable
+  → {"detail": "Claude API is not configured. Set ANTHROPIC_API_KEY in .env"}
+  Benefit: Clear, actionable message
+
+AFTER FIX - Invalid Document Type:
+  → 400 Bad Request
+  → {"detail": "Invalid doc_type. Must be one of: tos, privacy, ..."}
+  Benefit: Shows valid options
+
+AFTER FIX - Content Too Short:
+  → 400 Bad Request
+  → {"detail": "Document content too short (minimum 100 characters)"}
+  Benefit: Shows requirement
+
+AFTER FIX - Success (with valid API key):
+  → 200 OK
+  → {"content_hash": "...", "summary": {...}, "risk_score": {...}}
+  Benefit: Full analysis
+
+================================================================================
+                            STARTUP BEHAVIOR
+================================================================================
+
+BEFORE FIX:
+  $ python main.py
+  (crashes immediately if ANTHROPIC_API_KEY is missing)
+
+AFTER FIX:
+  $ python main.py
+  🚀 Click Wise Backend Starting...
+  INFO:     Uvicorn running on http://0.0.0.0:8000
+  WARNING: No valid ANTHROPIC_API_KEY configured
+  WARNING: Supabase credentials not configured. Cache will be disabled.
+  (backend starts successfully, ready to accept requests)
+
+================================================================================
+                         HOW ERRORS ARE HANDLED NOW
+================================================================================
+
+Missing API Key:
+  1. User sends request to /api/v1/scan
+  2. Router calls claude_client.analyze_document()
+  3. Claude client checks: if not self.client: raise RuntimeError(...)
+  4. Router catches RuntimeError
+  5. Router raises HTTPException(503, "Configure API key")
+  6. Response: 503 Service Unavailable with clear message
+  7. Backend does NOT crash, returns meaningful error
+
+Invalid Supabase Credentials:
+  1. CacheService checks credentials on initialization
+  2. self.is_enabled = False (cache disabled)
+  3. User sends request to /api/v1/scan
+  4. Router checks cache: cache_service.get_cached_analysis()
+  5. Cache returns None (because disabled, not an error)
+  6. Analysis proceeds normally with Claude API
+  7. Router tries to store in cache (non-blocking operation)
+  8. Cache gracefully skips storage if disabled
+  9. Request succeeds despite missing Supabase
+
+================================================================================
+                           TESTING THE FIX
+================================================================================
+
+Test 1: Verify Startup Works
+  $ cd backend && python main.py
+  Look for:
+    "Uvicorn running on http://0.0.0.0:8000" ✓
+    WARNING messages if keys not set ✓
+  Should NOT see:
+    Crash or error on startup ✗
+
+Test 2: Test Missing API Key (503)
+  $ curl -X POST http://localhost:8000/api/v1/scan \
+    -H "Content-Type: application/json" \
+    -d '{"content":"This is a long sample privacy policy document with more than 100 characters to meet minimum length requirement...", "doc_type":"privacy", "domain":"example.com"}'
+
+  Expected: 503 Service Unavailable
+  Message: "Claude API is not configured..."
+
+Test 3: Test Invalid Doc Type (400)
+  $ curl -X POST http://localhost:8000/api/v1/scan \
+    -H "Content-Type: application/json" \
+    -d '{"content":"...", "doc_type":"invalid_type", "domain":"example.com"}'
+
+  Expected: 400 Bad Request
+  Message: "Invalid doc_type. Must be one of: tos, privacy, ..."
+
+Test 4: Test Success (200)
+  $ export ANTHROPIC_API_KEY=sk-ant-xxxxx
+  $ python main.py (restart backend)
+  $ curl -X POST http://localhost:8000/api/v1/scan \
+    -H "Content-Type: application/json" \
+    -d '{"content":"...", "doc_type":"privacy", "domain":"example.com"}'
+
+  Expected: 200 OK with full analysis
+
+================================================================================
+                          CONFIGURATION GUIDE
+================================================================================
+
+DEVELOPMENT WITH API KEY:
+  1. Create backend/.env file with:
+     ANTHROPIC_API_KEY=sk-ant-xxxxx
+
+  2. (Optional) Add Supabase for caching:
+     SUPABASE_URL=https://your-project.supabase.co
+     SUPABASE_SERVICE_KEY=your-service-key
+
+  3. Restart backend:
+     python main.py
+
+  4. Verify startup logs show:
+     INFO: Claude client initialized with API key ✓
+
+DEVELOPMENT WITHOUT API KEY:
+  1. Run backend with default mock credentials:
+     python main.py
+
+  2. Startup logs show warnings but no crashes ✓
+
+  3. API calls return 503 with clear error message ✓
+     Message tells you: "Set ANTHROPIC_API_KEY in .env"
+
+  4. Add API key to .env and restart when ready
+
+================================================================================
+                        BACKWARD COMPATIBILITY
+================================================================================
+
+100% backward compatible
+
+Old Code Still Works:
+  - Valid API key + Supabase → identical behavior
+  - Requests with valid params → identical responses
+  - Cache hits/misses → identical behavior
+
+No Breaking Changes:
+  - Response JSON format unchanged
+  - Endpoint paths unchanged
+  - Valid requests succeed identically
+  - Only difference: error codes are now MORE ACCURATE
+
+================================================================================
+                           SUMMARY OF CHANGES
+================================================================================
+
+What Was Wrong:
+  - Missing API key caused 500 Error (should be 503)
+  - Mock Supabase credentials caused 500 Error (should be optional)
+  - All errors returned 500 (no distinction between bad request vs real error)
+
+What's Fixed:
+  - Missing API key → 503 Service Unavailable + helpful message
+  - Mock Supabase → Request succeeds without cache (cache is optional)
+  - Errors classified → 400 (bad request), 503 (unavailable), 500 (unexpected)
+
+Result:
+  - Backend is more robust in development
+  - Error messages are clear and actionable
+  - No more confusing 500 errors that crash the server
+
+================================================================================
+                         QUICK START
+================================================================================
+
+1. Verify backend starts:
+   cd backend
+   python main.py
+   (Should start successfully even without API key)
+
+2. Optional: Add API key for Claude analysis:
+   # Create backend/.env
+   echo "ANTHROPIC_API_KEY=sk-ant-xxxxx" > .env
+   python main.py
+
+3. Test API:
+   curl -X POST http://localhost:8000/api/v1/scan \
+     -H "Content-Type: application/json" \
+     -d '{"content":"...long text...", "doc_type":"privacy", "domain":"x.com"}'
+
+4. Check response:
+   - No API key: 503 with message
+   - With API key: 200 with analysis
+
+================================================================================

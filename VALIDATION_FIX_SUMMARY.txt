@@ -1,0 +1,150 @@
+================================================================================
+                 DOC_TYPE VALIDATION FIX - SUMMARY
+================================================================================
+
+✅ ISSUE RESOLVED
+The extension no longer throws "Invalid document type: general" error.
+
+================================================================================
+                          CHANGES MADE (3 FILES)
+================================================================================
+
+1. BACKEND VALIDATION (backend/api/routes/documents.py)
+   ✅ Added "general" to valid doc_types list
+   ✅ Changed from hardcoded list to dynamic list
+   ✅ Updated error messages to be auto-generated
+   
+   Old: if request.doc_type not in ["tos", "privacy", "cookie", "eula", "api_terms"]
+   New: valid_doc_types = ["tos", "privacy", "cookie", "eula", "api_terms", "general"]
+
+2. FRONTEND VALIDATION (frontend/src/services/api.ts)
+   ✅ Added "general" to valid doc_types list
+   ✅ Synchronized with backend validation
+   ✅ Consistent error messages across client/server
+   
+   Old: if (!['tos', 'privacy', 'cookie', 'eula', 'api_terms'].includes(docType))
+   New: const validDocTypes = ['tos', 'privacy', 'cookie', 'eula', 'api_terms', 'general']
+
+3. CONTENT SCRIPT DETECTION (extension/content/index.ts)
+   ✅ Implemented smart document type detection
+   ✅ Replaced hardcoded 'general' with intelligent detection
+   ✅ Detects from URL, page title, and headings
+   ✅ Falls back to 'privacy' (not 'general')
+   
+   Old: docType: 'general' (always)
+   New: docType: detectDocumentType() (intelligent)
+
+================================================================================
+                      DETECTION LOGIC (NEW)
+================================================================================
+
+Priority Order:
+  1. URL Pattern Matching   → Check for /privacy, /terms, /cookie, etc.
+  2. Page Title Analysis    → Look for "Privacy Policy", "Terms of Service", etc.
+  3. Heading Analysis       → Scan <h1>, <h2>, <h3> for legal keywords
+  4. Fallback Default       → Use "privacy" (safest and most common)
+
+Examples:
+  https://example.com/privacy-policy        → Detects "privacy"
+  https://example.com/terms-of-service      → Detects "tos"
+  https://example.com/cookie-policy         → Detects "cookie"
+  https://example.com/eula                  → Detects "eula"
+  https://example.com/api/terms             → Detects "api_terms"
+  https://example.com/legal-stuff           → Falls back to "privacy"
+
+================================================================================
+                         BUILD STATUS
+================================================================================
+
+✅ Frontend Build Successful
+   - TypeScript compilation: OK
+   - Vite bundling: OK
+   - Extension verification: OK (all required files present)
+   - Content script compiled: OK (contains new detection logic)
+
+Files Generated:
+   ✅ dist/manifest.json
+   ✅ dist/index.html
+   ✅ dist/sidepanel.html
+   ✅ dist/background/index.js
+   ✅ dist/content/index.js (with smart detection)
+   ✅ dist/icons/ (all icon files)
+
+================================================================================
+                     HOW TO TEST THE FIX
+================================================================================
+
+Step 1: Reload Extension in Chrome
+  1. Open chrome://extensions/
+  2. Find "Click Wise" extension
+  3. Click the reload icon 🔄
+
+Step 2: Visit a Legal Document Page
+  - Privacy page: https://www.google.com/policies/privacy
+  - Terms page: https://www.github.com/site/terms
+  - Cookie page: Look for any site's cookie policy
+
+Step 3: Check Browser Console
+  1. Right-click extension icon
+  2. Select "Inspect popup" or "Inspect sidepanel"
+  3. Go to Console tab
+  4. You should see:
+     "CLICK WISE: Detected privacy from URL"
+     "CLICK WISE: Detected tos from URL"
+     "CLICK WISE: Detected cookie from URL"
+     etc.
+
+Step 4: Trigger Document Analysis (if UI ready)
+  - Click extension icon to open popup
+  - Should show analysis without 400/422 errors
+  - No "Invalid document type" message
+
+================================================================================
+                      BACKWARD COMPATIBILITY
+================================================================================
+
+✅ FULLY BACKWARD COMPATIBLE
+  - Old code using "tos", "privacy", "cookie", "eula", "api_terms" still works
+  - "general" is now additional valid type (not replacing anything)
+  - No breaking changes
+  - Frontend/backend validation now synchronized
+
+================================================================================
+                        ERROR HANDLING
+================================================================================
+
+Before Fix:
+  ❌ Invalid doc_type. doc_type must be one of: tos, privacy, cookie, eula, api_terms. Got: general
+
+After Fix:
+  ✅ Backend accepts "general" gracefully
+  ✅ Content script rarely sends "general" (smart detection instead)
+  ✅ If "general" somehow sent, backend accepts it
+  ✅ Error messages are clear and maintainable
+
+================================================================================
+                         FILES MODIFIED
+================================================================================
+
+3 core files modified:
+  1. backend/api/routes/documents.py      (9 lines changed)
+  2. frontend/src/services/api.ts         (7 lines changed)
+  3. extension/content/index.ts          (56 lines added, smart detection)
+
+Documentation created:
+  - FIX_DOC_TYPE_VALIDATION.md (comprehensive explanation)
+  - VALIDATION_FIX_SUMMARY.txt (this file)
+
+================================================================================
+                         NEXT STEPS
+================================================================================
+
+1. Reload extension in Chrome (chrome://extensions > reload icon)
+2. Test on a legal document page
+3. Check browser console for detection logs
+4. Verify no validation errors occur
+5. If all good, extension is ready for testing
+
+Questions? Check FIX_DOC_TYPE_VALIDATION.md for detailed explanations.
+
+================================================================================
