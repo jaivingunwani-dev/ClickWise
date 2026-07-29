@@ -40,7 +40,7 @@ function App() {
     docType: string;
   } | null> => {
     return new Promise((resolve) => {
-      chrome.tabs?.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs?.query({ active: true, currentWindow: true }, (tabs: chrome.tabs.Tab[]) => {
         const tab = tabs?.[0];
         if (!tab?.id) {
           setError({
@@ -54,7 +54,7 @@ function App() {
         chrome.tabs.sendMessage(
           tab.id,
           { action: 'extractLegalDocument' },
-          (response) => {
+          (response: Record<string, unknown> | undefined) => {
             if (chrome.runtime.lastError) {
               setError({
                 message: 'Content script not ready',
@@ -65,15 +65,16 @@ function App() {
             }
 
             if (response?.success && response.data) {
+              const data = response.data as Record<string, unknown>;
               resolve({
-                text: response.data.content,
-                domain: response.data.domain,
-                docType: response.data.docType,
+                text: data.content as string,
+                domain: data.domain as string,
+                docType: data.docType as string,
               });
             } else {
               setError({
                 message: 'No legal document detected',
-                detail: response?.error || 'Could not find a legal document on this page.',
+                detail: (response?.error as string) || 'Could not find a legal document on this page.',
               });
               resolve(null);
             }
@@ -119,10 +120,11 @@ function App() {
       });
 
       setError(null);
-    } catch (err: any) {
-      const errorMessage = formatError(err);
+    } catch (err: unknown) {
+      const scanError = err as Record<string, unknown>;
+      const errorMessage = formatError(scanError as { status: number; message: string });
       setError({
-        message: err.message || 'Analysis failed',
+        message: (scanError.message as string) || 'Analysis failed',
         detail: errorMessage,
       });
     } finally {

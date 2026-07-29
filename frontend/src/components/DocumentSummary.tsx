@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertCircle, Zap, Lock, FileText } from 'lucide-react';
+import { AlertCircle, Lock, FileText } from 'lucide-react';
 
 interface DocumentSummaryProps {
   domain: string;
@@ -49,7 +49,7 @@ export const DocumentSummary: React.FC<DocumentSummaryProps> = ({
         </div>
       )}
 
-      {(summary.key_clauses || summary.key_risks) && (summary.key_clauses?.length || summary.key_risks?.length) > 0 && (
+      {(summary.key_clauses?.length || 0) + (summary.key_risks?.length || 0) > 0 && (
         <div className="bg-red-50 rounded-lg p-3 border border-red-100">
           <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-red-600" />

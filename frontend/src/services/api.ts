@@ -3,7 +3,7 @@
  * Handles communication with the backend API for document analysis
  */
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+const BACKEND_URL = (typeof process !== 'undefined' && process.env.REACT_APP_BACKEND_URL) || 'http://localhost:8000';
 
 interface ScanResponse {
   content_hash: string;
@@ -117,7 +117,7 @@ export async function scanDocument(
       } as ScanError;
     }
 
-    if (error instanceof AbortError) {
+    if (error instanceof Error && error.name === 'AbortError') {
       throw {
         status: 0,
         message: 'Request timeout',
@@ -126,7 +126,7 @@ export async function scanDocument(
     }
 
     // Re-throw if already a ScanError
-    if ('status' in (error as any)) {
+    if (error instanceof Object && 'status' in error) {
       throw error;
     }
 

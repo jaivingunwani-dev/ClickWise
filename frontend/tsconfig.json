@@ -17,6 +17,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
+    "types": ["@types/chrome", "@types/node", "@types/jest"],
     "paths": {
       "@/*": ["./src/*"]
     }
