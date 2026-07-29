@@ -36,7 +36,7 @@ async function analyzeDocument(
 ): Promise<any> {
   const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
 
-  const response = await fetch(`${backendUrl}/api/documents/analyze`, {
+  const response = await fetch(`${backendUrl}/api/v1/scan`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -45,7 +45,6 @@ async function analyzeDocument(
       domain,
       doc_type: docType,
       content,
-      url: new URL(document.URL).origin,
     }),
   });
 

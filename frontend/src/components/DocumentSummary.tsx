@@ -7,6 +7,7 @@ interface DocumentSummaryProps {
   summary: {
     executive_summary?: string;
     key_clauses?: string[];
+    key_risks?: string[];
     user_rights?: string[];
     user_responsibilities?: string[];
   };
@@ -48,16 +49,16 @@ export const DocumentSummary: React.FC<DocumentSummaryProps> = ({
         </div>
       )}
 
-      {summary.key_clauses && summary.key_clauses.length > 0 && (
-        <div className="bg-gray-50 rounded-lg p-3">
+      {(summary.key_clauses || summary.key_risks) && (summary.key_clauses?.length || summary.key_risks?.length) > 0 && (
+        <div className="bg-red-50 rounded-lg p-3 border border-red-100">
           <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
-            <Zap className="w-4 h-4" />
-            Key Clauses
+            <AlertCircle className="w-4 h-4 text-red-600" />
+            Key Risks & Clauses
           </h4>
           <ul className="space-y-1">
-            {summary.key_clauses.slice(0, 3).map((clause, idx) => (
+            {(summary.key_risks || summary.key_clauses || []).slice(0, 5).map((item, idx) => (
               <li key={idx} className="text-sm text-gray-700">
-                • {clause}
+                • {item}
               </li>
             ))}
           </ul>

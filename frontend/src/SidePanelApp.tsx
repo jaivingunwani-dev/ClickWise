@@ -1,19 +1,142 @@
 import React from 'react';
 import { RiskScore } from './components/RiskScore';
 import { DocumentSummary } from './components/DocumentSummary';
-import { Loader, RefreshCw } from 'lucide-react';
+import { Loader, RefreshCw, AlertCircle } from 'lucide-react';
+import { scanDocument, formatError } from './services/api';
 import './index.css';
+
+interface AnalysisState {
+  domain: string;
+  docType: string;
+  documentText: string;
+  score: number;
+  level: 'low' | 'medium' | 'high' | 'critical';
+  summary: string;
+  risks: string[];
+  flags: Array<{
+    code: string;
+    category: string;
+    weight: number;
+    description: string;
+  }>;
+  cached: boolean;
+}
+
+interface ErrorState {
+  message: string;
+  detail?: string;
+}
 
 function SidePanelApp() {
   const [loading, setLoading] = React.useState(false);
-  const [analyzed, setAnalyzed] = React.useState(false);
+  const [error, setError] = React.useState<ErrorState | null>(null);
+  const [analysis, setAnalysis] = React.useState<AnalysisState | null>(null);
 
+  /**
+   * Request page text extraction from content script
+   */
+  const extractPageContent = async (): Promise<{
+    text: string;
+    domain: string;
+    docType: string;
+  } | null> => {
+    return new Promise((resolve) => {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        const tab = tabs[0];
+        if (!tab?.id) {
+          setError({
+            message: 'Unable to access current tab',
+            detail: 'Click Wise could not read the current page.',
+          });
+          resolve(null);
+          return;
+        }
+
+        chrome.tabs.sendMessage(
+          tab.id,
+          { action: 'extractLegalDocument' },
+          (response) => {
+            if (chrome.runtime.lastError) {
+              setError({
+                message: 'Content script not ready',
+                detail: 'Please refresh the page and try again.',
+              });
+              resolve(null);
+              return;
+            }
+
+            if (response?.success && response.data) {
+              resolve({
+                text: response.data.content,
+                domain: response.data.domain,
+                docType: response.data.docType,
+              });
+            } else {
+              setError({
+                message: 'No legal document detected',
+                detail: response?.error || 'Could not find a legal document on this page.',
+              });
+              resolve(null);
+            }
+          }
+        );
+      });
+    });
+  };
+
+  /**
+   * Handle analyze button click
+   */
   const handleAnalyze = async () => {
     setLoading(true);
-    setTimeout(() => {
+    setError(null);
+
+    try {
+      // Extract page content
+      const pageData = await extractPageContent();
+      if (!pageData) {
+        setLoading(false);
+        return;
+      }
+
+      // Call backend API
+      const response = await scanDocument(
+        pageData.text,
+        pageData.docType,
+        pageData.domain
+      );
+
+      // Map response to state
+      setAnalysis({
+        domain: response.domain,
+        docType: response.doc_type,
+        documentText: pageData.text,
+        score: response.risk_score.score,
+        level: response.risk_score.level,
+        summary: response.summary.executive_summary,
+        risks: response.summary.key_risks,
+        flags: response.risk_score.flags,
+        cached: response.cached,
+      });
+
+      setError(null);
+    } catch (err: any) {
+      const errorMessage = formatError(err);
+      setError({
+        message: err.message || 'Analysis failed',
+        detail: errorMessage,
+      });
+    } finally {
       setLoading(false);
-      setAnalyzed(true);
-    }, 1500);
+    }
+  };
+
+  /**
+   * Reset analysis
+   */
+  const handleReset = () => {
+    setAnalysis(null);
+    setError(null);
   };
 
   return (
@@ -29,7 +152,29 @@ function SidePanelApp() {
 
         {/* Content */}
         <div className="p-4 space-y-4">
-          {!analyzed ? (
+          {/* Error State */}
+          {error && !analysis && (
+            <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+              <div className="flex gap-3">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-red-900">{error.message}</p>
+                  {error.detail && (
+                    <p className="text-xs text-red-700 mt-1">{error.detail}</p>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={handleReset}
+                className="mt-3 w-full text-xs font-medium text-red-700 hover:text-red-900 py-1 px-2 rounded hover:bg-red-100 transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          )}
+
+          {/* Initial State */}
+          {!analysis && !error && (
             <div className="space-y-3">
               <div className="bg-white rounded-lg p-4 border border-gray-200">
                 <p className="text-sm text-gray-600 mb-3">
@@ -57,71 +202,52 @@ function SidePanelApp() {
                 </p>
               </div>
             </div>
-          ) : (
+          )}
+
+          {/* Analysis State */}
+          {analysis && !error && (
             <div className="space-y-4">
               <button
-                onClick={() => setAnalyzed(false)}
-                className="w-full flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-gray-900 py-2"
+                onClick={handleReset}
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-gray-900 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <RefreshCw className="w-4 h-4" />
                 Analyze Different Page
               </button>
 
+              {/* Cache indicator */}
+              {analysis.cached && (
+                <div className="bg-green-50 rounded-lg p-2 border border-green-200">
+                  <p className="text-xs text-green-700">✓ Loaded from cache</p>
+                </div>
+              )}
+
+              {/* Risk Score */}
               <RiskScore
-                score={58}
-                level="high"
-                flags={[
-                  {
-                    code: 'FLAG_DATA_SELLING',
-                    description: 'Selling personal data to third parties',
-                    weight: 25,
-                  },
-                  {
-                    code: 'FLAG_AUTO_RENEWAL',
-                    description: 'Auto-renewal without email notice',
-                    weight: 15,
-                  },
-                  {
-                    code: 'FLAG_AI_TRAINING',
-                    description: 'User content used for AI training',
-                    weight: 20,
-                  },
-                ]}
+                score={analysis.score}
+                level={analysis.level}
+                flags={analysis.flags}
               />
 
+              {/* Summary */}
               <DocumentSummary
-                domain="example-platform.com"
-                docType="terms of service"
+                domain={analysis.domain}
+                docType={analysis.docType}
                 summary={{
-                  executive_summary:
-                    'This Terms of Service outlines the conditions under which you can use this SaaS platform, including data practices, subscription terms, and liability limitations.',
-                  key_clauses: [
-                    'Automatic renewal every month with 30-day cancellation notice',
-                    'User data shared with 15+ third-party providers',
-                    'Your content licensed for AI model training',
-                  ],
-                  user_rights: [
-                    'Can export data within 30 days',
-                    'Can delete account anytime',
-                    'Can opt-out of non-essential tracking',
-                  ],
+                  executive_summary: analysis.summary,
+                  key_clauses: analysis.risks,
                 }}
+                loading={false}
               />
-
-              <div className="bg-amber-50 rounded-lg p-3 border border-amber-200">
-                <p className="text-xs text-amber-900">
-                  🔍 <strong>Changed since last view:</strong> Data retention policy updated from 12 to
-                  24 months
-                </p>
-              </div>
             </div>
           )}
 
           {/* Footer Disclaimer */}
           <div className="bg-gray-100 rounded-lg p-3">
             <p className="text-xs text-gray-600 text-center">
-              ⚠️ <strong>Not legal advice.</strong> This analysis is for informational purposes.
-              Consult a lawyer.
+              ⚠️ <strong>Not legal advice.</strong> This is an AI analysis for informational
+              purposes. Consult a lawyer for legal matters.
             </p>
           </div>
         </div>

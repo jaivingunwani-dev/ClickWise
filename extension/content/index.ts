@@ -152,6 +152,33 @@ function initialize() {
   }
 }
 
+/**
+ * Listen for extraction requests from UI
+ */
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'extractLegalDocument') {
+    const detected = detectLegalDocument();
+
+    if (detected) {
+      const domain = new URL(window.location.href).hostname;
+      sendResponse({
+        success: true,
+        data: {
+          content: detected.content,
+          domain: domain,
+          docType: detected.docType,
+          confidence: detected.confidence,
+        },
+      });
+    } else {
+      sendResponse({
+        success: false,
+        error: 'No legal document detected on this page',
+      });
+    }
+  }
+});
+
 // Run detection when page loads
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initialize);
