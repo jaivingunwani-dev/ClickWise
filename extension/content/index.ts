@@ -52,6 +52,7 @@ function extractPageText() {
 /**
  * Listen for extraction requests from UI popup/sidepanel
  * FOOLPROOF: Always tries to extract, always responds
+ * CRITICAL: Return true to keep message port open until sendResponse is called
  */
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log('CLICK WISE: Message received', request.action);
@@ -68,5 +69,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         error: String(error),
       });
     }
+  } else {
+    // Fallback: unknown action still gets a response
+    console.warn('CLICK WISE: Unknown action:', request.action);
+    sendResponse({
+      success: false,
+      error: 'Unknown action: ' + request.action,
+    });
   }
+
+  // Return true to indicate response is sent (keeps port open if needed)
+  return true;
 });
