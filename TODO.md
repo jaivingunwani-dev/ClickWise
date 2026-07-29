@@ -1,4 +1,4 @@
-# Click-Wise: Step-by-Step Implementation Roadmap (TODO.md)
+# Click Wise: Step-by-Step Implementation Roadmap (TODO.md)
 
 ## Phase 1: Environment Setup & Project Initialization
 

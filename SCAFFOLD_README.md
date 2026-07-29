@@ -1,13 +1,13 @@
-# Click-Wise: Phase 1 Scaffold
+# Click Wise: Phase 1 Scaffold
 
-This document outlines the scaffolded project structure for Click-Wise, an AI-powered legal document analyzer for Chrome.
+This document outlines the scaffolded project structure for Click Wise, an AI-powered legal document analyzer for Chrome.
 
 ## ✅ What's Been Created
 
 ### Project Structure
 
 ```
-Click-Wise/
+Click Wise/
 ├── frontend/                    # React + TypeScript + Vite frontend
 │   ├── src/
 │   │   ├── components/         # Reusable React components

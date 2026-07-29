@@ -10,12 +10,12 @@ from api.routes import health, documents
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("🚀 Click-Wise Backend Starting...")
+    print("🚀 Click Wise Backend Starting...")
     yield
-    print("🛑 Click-Wise Backend Shutting Down...")
+    print("🛑 Click Wise Backend Shutting Down...")
 
 app = FastAPI(
-    title="Click-Wise API",
+    title="Click Wise API",
     description="AI-powered legal document analysis for digital agreements",
     version="0.1.0",
     lifespan=lifespan

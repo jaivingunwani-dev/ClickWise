@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Click-Wise - Legal Document Analyzer",
+  "name": "Click Wise - Legal Document Analyzer",
   "version": "0.1.0",
   "description": "AI-powered analysis of Terms, Privacy Policies, and other digital legal documents",
   "permissions": [
@@ -14,7 +14,7 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Click-Wise"
+    "default_title": "Click Wise"
   },
   "side_panel": {
     "default_path": "sidepanel.html"

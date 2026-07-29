@@ -1,4 +1,4 @@
-// Content Script for Click-Wise - Detects and extracts legal documents
+// Content Script for Click Wise - Detects and extracts legal documents
 
 interface DetectedDocument {
   docType: string;

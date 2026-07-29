@@ -1,4 +1,4 @@
-# Click-Wise: Quick Setup Instructions
+# Click Wise: Quick Setup Instructions
 
 ## Prerequisites
 
@@ -74,11 +74,11 @@ npm test
    - Enable "Developer mode" (top right toggle)
    - Click "Load unpacked"
    - Navigate to and select the `extension/` folder
-   - You should see "Click-Wise" extension appear
+   - You should see "Click Wise" extension appear
 
 3. **Test the extension:**
    - Visit any website
-   - Click the Click-Wise extension icon
+   - Click the Click Wise extension icon
    - Click "Open Analyzer"
    - The sidepanel should open on the right
 
@@ -138,7 +138,7 @@ For Phase 1, you can leave API keys empty — the backend returns mock responses
 ## Project Structure
 
 ```
-Click-Wise/
+Click Wise/
 ├── backend/          # FastAPI Python server
 ├── frontend/         # React TypeScript web app
 ├── extension/        # Chrome Extension (Manifest V3)

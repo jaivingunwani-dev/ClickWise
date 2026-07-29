@@ -1,8 +1,8 @@
-# Click-Wise: Technical Specification (SPEC.md)
+# Click Wise: Technical Specification (SPEC.md)
 
 ## 1. System Architecture Overview
 
-Click-Wise is an AI-powered browser extension that detects, parses, summarizes, and evaluates digital legal documents (TOS, Privacy Policies, EULAs, Cookie Policies, API Terms). 
+Click Wise is an AI-powered browser extension that detects, parses, summarizes, and evaluates digital legal documents (TOS, Privacy Policies, EULAs, Cookie Policies, API Terms). 
 
 ┌────────────────────────┐      ┌─────────────────────────┐      ┌────────────────────────┐
 │  Chrome Extension      │      │  FastAPI Backend        │      │  Supabase (Postgres)   │
@@ -151,7 +151,7 @@ Security is a fundamental design requirement across both the browser extension a
 ## 10. Compliance & Jurisdictional Framework
 
 ### 10.1 Regulatory Compliance
-* **GDPR & CCPA Compliance:** Click-Wise enforces strict privacy standards on its own data pipelines (zero permanent raw document storage; telemetry stored with user anonymization).
+* **GDPR & CCPA Compliance:** Click Wise enforces strict privacy standards on its own data pipelines (zero permanent raw document storage; telemetry stored with user anonymization).
 * **EU Digital Services Act (DSA):** Evaluation logic checks target sites for clear content moderation policies and account suspension appeal mechanisms.
 
 ### 10.2 Jurisdictional Scoring Adjustments

@@ -10,7 +10,7 @@ function App() {
     <div className="min-h-screen bg-white">
       <div className="max-w-2xl mx-auto p-6">
         <header className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Click-Wise</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Click Wise</h1>
           <p className="text-gray-600 text-sm">AI-powered legal document analysis</p>
         </header>
 

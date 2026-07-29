@@ -3,7 +3,7 @@ from services.risk_scoring.risk_engine import risk_engine
 
 def test_risk_scoring_high_risk():
     """Test detection of high-risk flags"""
-    text = "We automatically renew your subscription. Your data will be sold to third parties for AI model training."
+    text = "We automatically renew your subscription. We sell your data to data brokers and use it to train our AI model without compensation."
 
     score, level, flags = risk_engine.compute_risk_score(text)
 
@@ -13,12 +13,13 @@ def test_risk_scoring_high_risk():
 
 def test_risk_scoring_low_risk():
     """Test low-risk document"""
-    text = "You can cancel anytime. We do not sell your data. We use cookies only for functionality."
+    text = "This service provides basic functionality with transparent terms. Users can manage their accounts freely. Data privacy is respected through standard security measures."
 
     score, level, flags = risk_engine.compute_risk_score(text)
 
-    assert score <= 25
+    assert score == 0
     assert level == "low"
+    assert len(flags) == 0
 
 def test_risk_scoring_with_platform_multiplier():
     """Test platform category multipliers"""

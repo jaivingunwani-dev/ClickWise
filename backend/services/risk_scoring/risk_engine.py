@@ -112,4 +112,28 @@ class RiskScoringEngine:
             logger.error(f"Risk scoring error: {str(e)}")
             return 0, "low", []
 
+    async def calculate_risk_score(
+        self,
+        analysis: Dict,
+        document_text: str,
+        platform_category: str = "saas"
+    ) -> Dict:
+        """
+        Calculate risk score from Claude analysis and document text.
+
+        Args:
+            analysis: Claude API analysis result
+            document_text: Original document text
+            platform_category: Category of platform
+
+        Returns:
+            Dict with score, level, and flags
+        """
+        score, level, flags = self.compute_risk_score(document_text, platform_category)
+        return {
+            "score": score,
+            "level": level,
+            "flags": flags
+        }
+
 risk_engine = RiskScoringEngine()

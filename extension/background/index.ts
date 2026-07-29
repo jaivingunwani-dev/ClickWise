@@ -1,7 +1,7 @@
-// Background Service Worker for Click-Wise
+// Background Service Worker for Click Wise
 
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('Click-Wise extension installed');
+  console.log('Click Wise extension installed');
 });
 
 // Listen for messages from content scripts

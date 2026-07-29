@@ -1,12 +1,12 @@
-# Click-Wise
+# Click Wise
 
 ## Project Overview
 
-Click-Wise is an AI-powered browser extension designed specifically for the **digital ecosystem** (SaaS platforms, cloud apps, social media, AI services, e-commerce, software downloads, and mobile web apps) to simplify complex online legal documents before users click **"Accept"** or **"I Agree."**
+Click Wise is an AI-powered browser extension designed specifically for the **digital ecosystem** (SaaS platforms, cloud apps, social media, AI services, e-commerce, software downloads, and mobile web apps) to simplify complex online legal documents before users click **"Accept"** or **"I Agree."**
 
 The extension detects Terms & Conditions, Privacy Policies, Cookie Policies, End User License Agreements (EULAs), API Agreements, and Developer Terms on web pages. It uses the Anthropic Claude API combined with a deterministic rule engine to analyze content and present clear, actionable summaries.
 
-Click-Wise helps users understand:
+Click Wise helps users understand:
 - What they are agreeing to
 - What data is being collected, sold, or shared with 3rd-party data brokers
 - **AI Training & IP Rights:** Whether user content/data is used to train internal AI models
@@ -19,7 +19,7 @@ Users can also ask questions about the document through an AI-powered chat inter
 
 Our goal is to make digital agreements transparent, understandable, and accessible for everyone.
 
-> **Disclaimer requirement:** Every summary, chat response, and risk score MUST carry a visible "This is not legal advice" notice, both in the UI and embedded in the AI system prompt output. Click-Wise is an aid for understanding, not a substitute for legal counsel.
+> **Disclaimer requirement:** Every summary, chat response, and risk score MUST carry a visible "This is not legal advice" notice, both in the UI and embedded in the AI system prompt output. Click Wise is an aid for understanding, not a substitute for legal counsel.
 
 ---
 

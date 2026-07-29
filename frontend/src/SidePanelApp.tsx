@@ -22,7 +22,7 @@ function SidePanelApp() {
         {/* Header */}
         <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
           <div className="p-4">
-            <h1 className="text-lg font-bold text-gray-900">Click-Wise</h1>
+            <h1 className="text-lg font-bold text-gray-900">Click Wise</h1>
             <p className="text-xs text-gray-500">Legal document analyzer</p>
           </div>
         </div>
@@ -53,7 +53,7 @@ function SidePanelApp() {
 
               <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
                 <p className="text-xs text-blue-800">
-                  💡 Click-Wise detects Terms of Service, Privacy Policies, Cookie Policies, and more.
+                  💡 Click Wise detects Terms of Service, Privacy Policies, Cookie Policies, and more.
                 </p>
               </div>
             </div>

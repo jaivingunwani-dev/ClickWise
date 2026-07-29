@@ -1,0 +1,225 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                 CLICK WISE HACKATHON: QUICK REFERENCE CARD                     ║
+║                                                                                 ║
+║  Total Budget: $90  |  Team: 4 devs (~$23 each)  |  Time: 3 hours  |  MVP Only ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+┌─ PHASE OVERVIEW ────────────────────────────────────────────────────────────────┐
+│ Phase 1 (DONE): Scaffolding                                                     │
+│ Phase 2 (DONE): Caching & Claude API Integration                                │
+│ Phase 3 (NOW):  Risk Scoring & Frontend UI Components                           │
+│ Phase 4 (NOW):  E2E Testing, Error Handling, Polish & Deployment               │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ DEVELOPMENT ROLES ─────────────────────────────────────────────────────────────┐
+│                                                                                 │
+│  DEV 1: BACKEND                DEV 2: FRONTEND             DEV 3: EXTENSION    │
+│  ─────────────────             ───────────────             ────────────────    │
+│  • Risk scoring                • RiskScore component       • Content script     │
+│  • Claude API validation       • DocumentSummary           • Background worker  │
+│  • Logging & error handling    • App.tsx form              • Popup & sidepanel  │
+│  • Caching tests               • SidePanelApp integration  • Manifest updates   │
+│  File: risk_engine.py          File: components/           File: manifest.json │
+│        claude_client.py               App.tsx                    content/       │
+│        documents.py                   SidePanelApp.tsx          background/     │
+│                                                                                 │
+│  DEV 4: QA & DEPLOYMENT                                                        │
+│  ──────────────────────                                                        │
+│  • E2E testing                                                                  │
+│  • Error handling verification                                                 │
+│  • Documentation (README, test report)                                         │
+│  • Final polish & git cleanup                                                  │
+│  Files: HACKATHON_README.md, DEPLOYMENT.md, test_caching_e2e.py              │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ EXECUTION TIMELINE ────────────────────────────────────────────────────────────┐
+│                                                                                 │
+│  HOUR 1: PARALLEL (Each dev works independently)                               │
+│  ────────────────────────────────────────────                                  │
+│  Dev 1: Risk scoring rules loading + Claude validation + E2E test              │
+│  Dev 2: RiskScore component + DocumentSummary component                        │
+│  Dev 3: Content script detection + Background message handler                  │
+│  Dev 4: Setup baseline, create test plan document                              │
+│                                                                                 │
+│  HOUR 2: INTEGRATION                                                           │
+│  ──────────────────                                                            │
+│  Dev 1: Risk level logic + Structured logging                                  │
+│  Dev 2: App.tsx form + SidePanelApp wiring                                     │
+│  Dev 3: Popup UI + Manifest fixes + Sidepanel integration                      │
+│  Dev 4: Cross-module integration testing, coordinate between devs              │
+│                                                                                 │
+│  HOUR 3: TESTING & POLISH                                                      │
+│  ──────────────────────────                                                    │
+│  Dev 1: Fix backend bugs from integration tests                                │
+│  Dev 2: Fix frontend bugs, optional dark mode                                  │
+│  Dev 3: Fix extension loading issues, final manifest check                     │
+│  Dev 4: Run full test suite, create README + deployment docs                  │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ CRITICAL SUCCESS FACTORS ──────────────────────────────────────────────────────┐
+│                                                                                 │
+│  1. Backend API ready by hour 1.5:  /api/v1/scan endpoint must work            │
+│  2. Frontend components ready:       RiskScore + DocumentSummary must render   │
+│  3. Extension communicates:          Content script → Background → Frontend     │
+│  4. Caching works:                   2nd scan must show cached=true, <100ms    │
+│  5. Zero errors on startup:          No console errors, no TypeScript errors   │
+│  6. Tests pass:                      pytest backend/tests/ -v must all pass    │
+│  7. Documentation ready:             README.md allows judges 5-min setup       │
+│  8. Demo script tested:              Someone outside team runs demo flow       │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ PROMPT FILES TO EXECUTE ───────────────────────────────────────────────────────┐
+│                                                                                 │
+│  DEV 1: See PROMPTS_PHASE3_DEV1_BACKEND.md                                     │
+│         • Prompt 1: Risk Scoring from Supabase Rules        [5 tokens]         │
+│         • Prompt 2: Claude API Response Parsing             [5 tokens]         │
+│         • Prompt 3: E2E Caching Flow Test                   [4 tokens]         │
+│         • Prompt 4: Risk Level Assignment Logic             [3 tokens]         │
+│         • Prompt 5: Logging & Error Handling                [2 tokens]         │
+│         Total: ~$23                                                            │
+│                                                                                 │
+│  DEV 2: See PROMPTS_PHASE3_DEV2_FRONTEND.md                                    │
+│         • Prompt 1: Risk Score Display Component            [5 tokens]         │
+│         • Prompt 2: Document Summary Component              [5 tokens]         │
+│         • Prompt 3: Main App Layout Update                  [4 tokens]         │
+│         • Prompt 4: SidePanelApp Auto-Detection             [4 tokens]         │
+│         • Prompt 5: Dark Mode Support (OPTIONAL)            [2 tokens]         │
+│         Total: ~$23                                                            │
+│                                                                                 │
+│  DEV 3: See PROMPTS_PHASE3_DEV3_EXTENSION.md                                   │
+│         • Prompt 1: Content Script Detection Refinement     [5 tokens]         │
+│         • Prompt 2: Background Message Handler              [5 tokens]         │
+│         • Prompt 3: Popup UI Wiring                         [4 tokens]         │
+│         • Prompt 4: Manifest V3 Permissions Update          [3 tokens]         │
+│         • Prompt 5: Sidepanel Integration                   [3 tokens]         │
+│         Total: ~$23                                                            │
+│                                                                                 │
+│  DEV 4: See PROMPTS_PHASE4_DEV4_E2E_POLISH.md                                  │
+│         • Prompt 1: E2E Test Plan Creation                  [3 tokens]         │
+│         • Prompt 2: Error Handling & Edge Cases             [4 tokens]         │
+│         • Prompt 3: README for Judges                       [3 tokens]         │
+│         • Prompt 4: Deployment Checklist                    [3 tokens]         │
+│         • Prompt 5: Final Polish & Documentation            [2 tokens]         │
+│         Total: ~$21                                                            │
+│                                                                                 │
+│  RESERVE: 10 tokens for emergency fixes                                        │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ ENVIRONMENT SETUP (Before starting) ────────────────────────────────────────────┐
+│                                                                                 │
+│  Backend:                    Frontend:                    Extension:           │
+│  ─────────                   ──────────                   ──────────           │
+│  cd backend                  cd frontend                  npm run build        │
+│  pip install -r req.txt      npm install                 (from frontend/)     │
+│  cp .env.example .env        npm run dev                 chrome://extensions  │
+│  python main.py              http://5173                 Load unpacked        │
+│  http://8000                                             extension/ folder    │
+│                                                                               │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ TESTING CHECKLIST ─────────────────────────────────────────────────────────────┐
+│                                                                                 │
+│  □ Backend health:      curl http://localhost:8000/api/health → 200 OK         │
+│  □ Cache miss:          POST /api/v1/scan → cached: false                      │
+│  □ Cache hit:           POST /api/v1/scan (same doc) → cached: true            │
+│  □ Extension loads:     chrome://extensions → no warnings                      │
+│  □ Auto-detection:      Visit stripe.com/legal → detect tos                    │
+│  □ Risk score visual:   Popup shows color-coded score (0-100)                  │
+│  □ Full analysis:       Sidepanel shows flagged issues + summary               │
+│  □ Manual upload:       http://localhost:5173 → paste doc → analyze            │
+│  □ Error handling:      Wrong input (< 100 chars) → 400 error message          │
+│  □ Zero console errors: npm dev, python main, Extension DevTools              │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ COMMON BLOCKERS & FIXES ───────────────────────────────────────────────────────┐
+│                                                                                 │
+│  "Backend won't start"                                                         │
+│  └─ Check: ANTHROPIC_API_KEY set in .env                    (1 min)            │
+│     Fix: export ANTHROPIC_API_KEY="sk-..." before python main.py              │
+│                                                                                 │
+│  "Extension won't load"                                                        │
+│  └─ Check: manifest.json syntax (missing comma, invalid JSON)  (2 min)         │
+│     Fix: `npm run build`, then Load unpacked again                             │
+│                                                                                 │
+│  "Frontend build fails"                                                        │
+│  └─ Check: Node version >= 16, npm cache clean             (3 min)            │
+│     Fix: rm -rf node_modules && npm install                                    │
+│                                                                                 │
+│  "Claude API times out"                                                        │
+│  └─ Don't fix. Use cached results, explain caching strategy. (0 min)           │
+│     Fallback: Show backend + frontend separately                               │
+│                                                                                 │
+│  "Extension detects nothing"                                                   │
+│  └─ Check: Page actually has legal document (> 1500 words)  (2 min)            │
+│     Test on: stripe.com/legal/ssa, google.com/policies                         │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ DEMO SCRIPT (5 MIN FOR JUDGES) ────────────────────────────────────────────────┐
+│                                                                                 │
+│  1. "Click Wise detects legal documents on websites."                          │
+│     → Navigate to stripe.com/legal/ssa                                         │
+│     → Point to extension icon                                                  │
+│                                                                                 │
+│  2. "Instant risk assessment when you click the extension."                    │
+│     → Click popup                                                              │
+│     → Show risk score 0-100, color-coded level                                │
+│                                                                                 │
+│  3. "Full breakdown in the sidepanel."                                         │
+│     → Click "Open Full Analyzer"                                               │
+│     → Show flagged issues, key clauses, user rights                            │
+│                                                                                 │
+│  4. "Caching makes second scans instant."                                      │
+│     → Reload page, click extension again                                       │
+│     → Show < 100ms load, "Cached" badge                                       │
+│                                                                                 │
+│  5. "Manual upload for analysis."                                              │
+│     → Show http://localhost:5173, paste document, analyze                      │
+│                                                                                 │
+│  Questions? We can explain the architecture, caching strategy, etc.            │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ WHAT JUDGES CARE ABOUT ────────────────────────────────────────────────────────┐
+│                                                                                 │
+│  1. WORKING END-TO-END: Extension → Backend → Display (critical)              │
+│  2. REAL AI: Uses actual Claude API, not mock data (critical)                 │
+│  3. SMART CACHING: Second scan instant (shows you understand efficiency)       │
+│  4. VISUAL DESIGN: Risk score is color-coded, easy to understand              │
+│  5. CLEAN CODE: No console spam, functions have docstrings                     │
+│  6. CLEAR README: Judges can demo in 5 minutes with zero friction              │
+│  7. ARCHITECTURE: Can explain decisions (why caching, why rule-based scoring)   │
+│                                                                                 │
+│  If all 7 are true → You have a winning submission.                            │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ FINAL CHECKLIST BEFORE DEMO ───────────────────────────────────────────────────┐
+│                                                                                 │
+│  [ ] All 3 services running (backend, frontend, extension)                     │
+│  [ ] Extension loads in fresh Chrome profile with zero warnings                │
+│  [ ] Full demo flow tested end-to-end at least once                            │
+│  [ ] HACKATHON_README.md written and tested                                    │
+│  [ ] git status shows clean (no uncommitted changes)                           │
+│  [ ] Someone else read the README and could run it                             │
+│  [ ] Backup plan if Claude API times out (cached results ready)               │
+│  [ ] Demo script practiced and timed (should take < 5 min)                     │
+│  [ ] All team members know their part of the demo                              │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+Remember: You're building an MVP for a hackathon, not production software.
+          Focus on WORKING + SHOWING, not PERFECT.
+          If something breaks, you have a fallback. Use it.
+          The judges are rooting for you. Be confident in your demo.
+
+              Good luck, team! You've got this! 🚀
+
+═══════════════════════════════════════════════════════════════════════════════════
