@@ -15,10 +15,10 @@ const distDir = path.resolve(__dirname, '../dist');
 // Files that must exist in the build output
 const requiredFiles = [
   'manifest.json',
-  'index.html',
-  'sidepanel.html',
-  'background/index.js',
-  'content/index.js',
+  'index.html',           // Main popup UI
+  'sidepanel.html',       // Side panel UI
+  'background/index.js',  // Background service worker
+  'content/index.js',     // Content script
 ];
 
 // Files that should exist (optional but good to have)

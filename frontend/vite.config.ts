@@ -11,15 +11,7 @@ const extensionPlugin = () => {
     writeBundle(options: any) {
       const outDir = options.dir || 'dist'
 
-      // Rename index.html to popup.html for Chrome extension compatibility
-      const indexPath = path.resolve(outDir, 'index.html')
-      const popupPath = path.resolve(outDir, 'popup.html')
-      if (fs.existsSync(indexPath)) {
-        fs.renameSync(indexPath, popupPath)
-        console.log('  ✓ Renamed index.html to popup.html')
-      }
-
-      // Copy manifest.json
+      // Copy manifest.json from extension directory to dist
       const manifestSrc = path.resolve(__dirname, '../extension/manifest.json')
       const manifestDest = path.resolve(outDir, 'manifest.json')
       if (fs.existsSync(manifestSrc)) {
