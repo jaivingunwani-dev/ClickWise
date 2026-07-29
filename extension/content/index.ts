@@ -25,22 +25,33 @@ const LEGAL_KEYWORDS = {
     'API Terms',
     'Developer Terms',
   ],
-  body: ['agree to', 'binding agreement', 'terms and conditions', 'privacy practices'],
+  body: [
+    'agree to',
+    'binding agreement',
+    'terms and conditions',
+    'privacy practices',
+    'personal data',
+    'shall',
+    'may not',
+    'we may',
+    'you agree',
+  ],
 };
 
-const MIN_WORD_COUNT = 1500;
+const MIN_TEXT_LENGTH = 500; // Minimum characters (much lower than before)
 
 /**
  * Detect if current page contains a legal document
+ * BULLETPROOF: Will extract text from any page with sufficient content
  */
 function detectLegalDocument(): DetectedDocument | null {
   const url = window.location.href;
   const domain = new URL(url).hostname;
 
   let docType: string | null = null;
-  let confidence = 0;
+  let confidence = 10; // Start with base confidence
 
-  // Check URL patterns
+  // Check URL patterns (optional boost, not required)
   for (const [type, patterns] of Object.entries(LEGAL_DOC_PATTERNS)) {
     if (patterns.some((p) => url.toLowerCase().includes(p))) {
       docType = type;
@@ -59,34 +70,79 @@ function detectLegalDocument(): DetectedDocument | null {
     }
   }
 
-  // Extract and validate text
+  // Extract text - BULLETPROOF APPROACH
   const text = extractDocumentText();
-  if (text.split(/\s+/).length > MIN_WORD_COUNT) {
-    confidence += 20;
-  } else {
-    return null; // Not enough content
+
+  // CRITICAL: Accept any text >= MIN_TEXT_LENGTH
+  // Don't fail if we have content available
+  if (text.length < MIN_TEXT_LENGTH) {
+    return null; // Too little content
   }
 
-  // Check body keywords
+  // Boost confidence if we find legal keywords
   if (LEGAL_KEYWORDS.body.some((kw) => text.toLowerCase().includes(kw))) {
-    confidence += 10;
+    confidence += 20;
   }
 
-  if (confidence >= 50 && docType) {
-    return {
-      docType,
-      content: text,
-      confidence,
-    };
+  // Default document type if not detected
+  if (!docType) {
+    docType = 'tos'; // Default assumption
+    confidence = Math.max(confidence, 30); // Ensure minimum confidence
   }
 
-  return null;
+  // Return document with confidence - don't require minimum confidence
+  // Just ensure we have content
+  return {
+    docType,
+    content: text,
+    confidence,
+  };
 }
 
 /**
- * Extract main text content from page, including shadow DOM
+ * Extract main text content from page with multiple fallback strategies
+ * BULLETPROOF: Will grab text from somewhere, guaranteed
  */
 function extractDocumentText(): string {
+  let text = '';
+
+  // Strategy 1: Try common content containers
+  const contentSelectors = [
+    'article',
+    'main',
+    '[role="main"]',
+    '#content',
+    '#main-content',
+    '.content',
+    '.main-content',
+  ];
+
+  for (const selector of contentSelectors) {
+    const element = document.querySelector(selector);
+    if (element) {
+      text = element.innerText || element.textContent || '';
+      if (text.length > 300) {
+        // Found good content
+        return cleanText(text);
+      }
+    }
+  }
+
+  // Strategy 2: Fallback to body.innerText (most reliable)
+  if (document.body.innerText) {
+    text = document.body.innerText;
+    if (text.length > 100) {
+      return cleanText(text);
+    }
+  }
+
+  // Strategy 3: Fallback to body.textContent
+  if (document.body.textContent) {
+    text = document.body.textContent;
+    return cleanText(text);
+  }
+
+  // Strategy 4: TreeWalker as last resort
   const walker = document.createTreeWalker(
     document.body,
     NodeFilter.SHOW_TEXT,
@@ -94,9 +150,7 @@ function extractDocumentText(): string {
     false
   );
 
-  let text = '';
   let node;
-
   while ((node = walker.nextNode())) {
     const trimmed = (node as Text).textContent?.trim();
     if (trimmed && trimmed.length > 0) {
@@ -104,13 +158,19 @@ function extractDocumentText(): string {
     }
   }
 
-  // Clean up text
-  text = text
-    .replace(/\s+/g, ' ')
-    .replace(/<script[^>]*>.*?<\/script>/gi, '')
-    .replace(/<style[^>]*>.*?<\/style>/gi, '');
+  return cleanText(text);
+}
 
-  return text.trim();
+/**
+ * Clean text: strip excessive whitespace and newlines
+ */
+function cleanText(text: string): string {
+  return text
+    .replace(/\n+/g, ' ') // Replace newlines with spaces
+    .replace(/\r+/g, ' ') // Replace carriage returns
+    .replace(/\t+/g, ' ') // Replace tabs
+    .replace(/\s+/g, ' ') // Collapse multiple spaces
+    .trim(); // Remove leading/trailing whitespace
 }
 
 /**
